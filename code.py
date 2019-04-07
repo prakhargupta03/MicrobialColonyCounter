@@ -32,7 +32,7 @@ while(unique_colony<10):
 	# """
 
 	stencil = np.zeros(mask.shape).astype(mask.dtype)
-	im2, contours, hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE ,cv2.CHAIN_APPROX_NONE)
+	contours, hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE ,cv2.CHAIN_APPROX_NONE)
 	# print("Found %d objects." % len(contours))
 
 	polyfillcontour = []
@@ -46,7 +46,7 @@ while(unique_colony<10):
 				flag = True
 				# pointcontour.append(c)
 				# cv2.drawContours(frame, c, -1, (255,0,0), 2)
-				cv2.drawContours(im2, c, -1, (127), 2)
+				# cv2.drawContours(im2, c, -1, (127), 2)
 		if not flag:
 			polyfillcontour.append(c)
 			# cv2.drawContours(maskedImage,[c],-1,127,2)
