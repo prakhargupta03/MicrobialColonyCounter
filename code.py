@@ -90,8 +90,19 @@ while(unique_colony<10):
 	# show the output image
 	kernel_size=kernel_size+2
 	# """
-print(unique_colony)
 cv2.imwrite('images/output.png',color_image)
+delay = 1000000000000
+while delay>0:
+	delay = delay-1
+	
+# import base64
+
+# with open("output.png", "rb") as image_file:
+	# encoded_string = base64.b64encode(image_file.read())
+	# print(encoded_string)
+
+print(unique_colony)
+
 # os.remove(image_name)
 
 ## config

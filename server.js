@@ -43,7 +43,8 @@ app.post('/submit', upload.any(), (req, res) => {
   pyshell.on('message', function (message) {
 	console.log('inside python-shell')
     console.log('result',message);  
-	var k=fs.readFileSync(path.join(__dirname, './images', 'output.png'), 'base64')
+	var k=fs.readFileSync(path.join(__dirname, './images', 'output.png'))
+	k = k.toString('base64')
 	// console.log(k);
 	var image = 'data:image/png;base64,'+k;
 	var colonycount = message
