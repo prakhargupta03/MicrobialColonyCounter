@@ -91,7 +91,7 @@ while(unique_colony<10):
 	kernel_size=kernel_size+2
 	# """
 cv2.imwrite('images/output.png',color_image)
-delay = 1000000000000
+delay = 10000
 while delay>0:
 	delay = delay-1
 	
