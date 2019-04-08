@@ -15,9 +15,9 @@ frame=  cv2.imread(image_name , 0)
 frame = cv2.resize(frame,(600,600))
 color_image = cv2.resize(color_image,(600,600))
 
-kernel_size = 3
+kernel_size = 7
 unique_colony = 0
-while(unique_colony<10):
+while(unique_colony<10 and kernel_size<18):
 	# kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(9,9))
 	kernel = np.ones((kernel_size,kernel_size),dtype= frame.dtype)
 
