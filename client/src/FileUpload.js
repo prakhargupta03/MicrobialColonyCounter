@@ -21,6 +21,10 @@ class FileUpload extends Component {
     return (
         <div style={{textAlign:'center',flex: '1',minWidth:'45vw',padding:15}}>
             <h1>{this.props.id}</h1>
+            <a href="/sampleImg.png" download="" target="_blank" rel="noopener noreferrer"
+              style={{marginLeft:4,textDecoration: 'none', color: '#000'}}>
+              ⬇ Sample Sample Image
+            </a>
             <FilePond ref={ref => this.pond = ref}
                 allowMultiple={false}
                 acceptedFileTypes={['image/*']}
@@ -39,6 +43,7 @@ class FileUpload extends Component {
                 ))}
                 
             </FilePond>
+            
         </div>
         
     );

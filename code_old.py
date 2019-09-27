@@ -37,56 +37,47 @@ image_part2 = color_image
 	
 # repeat process until we have at least 10 colonies or kernel size is less than 18
 while(unique_colony<10 and kernel_size<18):
-	# create a matrix or kernel of size equal to kernel_size. All entries inside matrix are 1
+	# kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(9,9))
 	kernel = np.ones((kernel_size,kernel_size),dtype= frame.dtype)
 
-	# Step 1 Top Hat Transform. 
-	# morphologyEx function(first argument is image, second is to tell that we have to perform top hat transform operation, third argument is kernel)
+	# Step 1 Top Hat Transform
 	tophat = cv2.morphologyEx(frame, cv2.MORPH_TOPHAT, kernel)
 
 	# Step 2 OTSU's Threshold
-	# otsu will convert image to black and white
-	# threshold function(first is image name we just applied top hat operation, second in min value of threshold, third is max value of threshold, last is which technique to follow of otsu )
 	ret2,mask = cv2.threshold(tophat,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	
-	# next two lines are optional. Use only if you want to see how image looks after otsu threshold
 	# cv2.imshow("Output", mask)
 	# cv2.waitKey(0)
 
-	
-	# Step 3. Detect outer circle.
-	# once circle detected, take only portion inside circle and make circle make circle and portion outside circle black to that in image only content inside circle is left.
-	
-	
-	stencil = np.zeros(mask.shape).astype(mask.dtype)
-	
-	# find outer circle
-	contours, hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE ,cv2.CHAIN_APPROX_NONE)
+	# """
 
-	# empty list. we will append all circles found in image inside this
+	stencil = np.zeros(mask.shape).astype(mask.dtype)
+	contours, hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE ,cv2.CHAIN_APPROX_NONE)
+	# print("Found %d objects." % len(contours))
+
 	polyfillcontour = []
-	
-	# for each circle found inside in image do following.
-	#(these circles can be outer contour or colony)
+	# pointcontour = []
 	for (i,c) in enumerate(contours):
-		# for each circle,find area of such circle 
 		area = cv2.contourArea(c)
 		flag = False
-		# if area is less than 100000 than is is not outer contour, so we need to ignore it
 		if area<100000:
-			# this is to detect if circle is present inside circle, if so than it cannot be outer circle i.e contour
 			if hierarchy[0,i,3] != -1:
+				# print(len(c),area)
 				flag = True
-		# finally if is is contour, then add it to polyfillcontour list 
+				# pointcontour.append(c)
+				# cv2.drawContours(frame, c, -1, (255,0,0), 2)
+				# cv2.drawContours(im2, c, -1, (127), 2)
 		if not flag:
 			polyfillcontour.append(c)
-			
-	# next 3 lines remove outer circle and content after outer circle so than these are not counted while counting colonies
+			# cv2.drawContours(maskedImage,[c],-1,127,2)
+
 	cv2.fillPoly(stencil, polyfillcontour, [255,255,255])
 	stencil = cv2.bitwise_not(stencil)
 	result = cv2.bitwise_and(mask, stencil)
+	# cv2.imwrite("Output1.png", result)
+	# cv2.drawContours(result, pointcontour, -1, (127), 2)
 
-	# next lines are to apply watershed algorithm
+	# mask = cv2.bitwise_and(mask, maskedImage, mask=maskedImage)
+
 	distance = ndi.distance_transform_edt(result)
 	# print(distance)
 	local_maxi = peak_local_max(distance, indices=False, footprint=np.ones((3, 3)),
@@ -94,6 +85,7 @@ while(unique_colony<10 and kernel_size<18):
 	markers = ndi.label(local_maxi)[0]
 	labels = watershed(-distance, markers, mask=result)
 	unique_colony = len(np.unique(labels)) - 1
+	# print("[INFO] {} unique segments found".format(len(np.unique(labels)) - 1))
 		
 	# loop over the unique labels returned by the Watershed algorithm
 	for label in np.unique(labels):
@@ -112,17 +104,17 @@ while(unique_colony<10 and kernel_size<18):
 		cnts = imutils.grab_contours(cnts)
 		c = max(cnts, key=cv2.contourArea)
 	 
-		# draw a circle enclosing the object. this is green circle around detected colonies
+		# draw a circle enclosing the object
 		((x, y), r) = cv2.minEnclosingCircle(c)
 		cv2.circle(color_image, (int(x), int(y)), int(r), (0,205, 0), 2)
-
+	 
+	# show the output image
 	kernel_size=kernel_size+2
+	# """
 	
 kk = unique_colony
 	
-## if colony detection failed due to now finding outer circle, then count without circle. 
-## The following code is duplicate of above code with only detecting outer circle part removed
-
+## if colony detection failed due to now finding outer circle, then count without circle
 if(unique_colony<10):
 	kernel_size = 17
 	color_image = image_part2
@@ -138,6 +130,7 @@ if(unique_colony<10):
 	stencil = np.zeros(mask.shape).astype(mask.dtype)
 	contours, hierarchy = cv2.findContours(mask.copy(),cv2.RETR_TREE ,cv2.CHAIN_APPROX_NONE)
 
+	polyfillcontour = []
 	result = mask
 	distance = ndi.distance_transform_edt(result)
 
@@ -171,8 +164,6 @@ if(unique_colony<10):
 	 
 	
 # write output	
-
-# following code is to add output (i.e number of colonies) at the bottom of image.
 color_image = cv2.resize(color_image,(n,m))
 
 border=cv2.copyMakeBorder(color_image, top=0, bottom=25, left=0, right=0, borderType= cv2.BORDER_CONSTANT, value=[0,0,0])
@@ -183,14 +174,12 @@ fontScale              = 0.5
 fontColor              = (255,255,255)
 lineType               = 1
 
-# putText function write text on image
 cv2.putText(border,str(unique_colony), 
     bottomLeftCornerOfText, 
     font, 
     fontScale,
     fontColor,
     lineType)
-	
 if(unique_colony<1000):
 	cv2.putText(border," colonies detected", (40,m+15),font,0.4,fontColor,lineType)
 else:
@@ -205,4 +194,14 @@ delay = 10000
 while delay>0:
 	delay = delay-1
 	
+# import base64
+
+# with open("output.png", "rb") as image_file:
+	# encoded_string = base64.b64encode(image_file.read())
+	# print(encoded_string)
+
 print(unique_colony)
+
+# os.remove(image_name)
+
+## config
