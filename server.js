@@ -40,6 +40,7 @@ app.post('/submit', upload.any(), (req, res) => {
   let {PythonShell} = require('python-shell')
   var pyshell = new PythonShell('code.py');
   pyshell.send(req.files[0].filename);
+  console.log('file name is ',req.files[0].filename )
   pyshell.on('message', function (message) {
 	console.log('inside python-shell')
     console.log('result',message);  

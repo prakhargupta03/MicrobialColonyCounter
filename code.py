@@ -10,7 +10,7 @@ import os
 
 # Take image input. Image must be in same folder as code
 image_name = input('Input: ')
-# image_name = 'images/'+image_name
+image_name = 'images/'+image_name
 
 ## now read image from path user entered. 
 
